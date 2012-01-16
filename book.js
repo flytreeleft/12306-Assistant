@@ -1,5 +1,5 @@
 ﻿/*
-  12306 Assistant v1.0.0
+  12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
   
   THANKS:
@@ -58,7 +58,7 @@ function book(order) {
 					// 写完内容后,必须关闭输出流,否则,将无法显示表单,某些脚本也无法执行
 					//console.log('book: ', document, document.documentElement);
 					document.write(msg);
-					document.write('<script type="text/javascript" src="'+chrome.extension.getURL('./order.js')+'"></script>');
+					document.write('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/order.js')+'"></script>');
 					document.close();
 				}
 			},

@@ -1,5 +1,5 @@
 /*
-  12306 Assistant v1.0.0
+  12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
   
   THANKS:

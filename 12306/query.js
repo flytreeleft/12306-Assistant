@@ -1,5 +1,5 @@
 ﻿/*
-  12306 Assistant v1.0.0
+  12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
   
   THANKS:
@@ -28,6 +28,7 @@
 // 查询过程的监听设置
 var queryCount = 1;
 var hasTicket = false;
+var ticketType = [];
 
 var hasTicketEvent = document.createEvent('Event');
 var bookTicketEvent = document.createEvent('Event');
@@ -35,8 +36,11 @@ var bookTicketEvent = document.createEvent('Event');
 hasTicketEvent.initEvent('hasTicket', true, true);
 bookTicketEvent.initEvent('bookTicket', true, true);
 
+// 显示信息的div设置
+$('.single_round').first().css('text-align', 'left').width(100).show().html('');
+
 function doQuery() {
-	$('.single_round:first').html('<span>尝试次数: '+(queryCount++)+'</span>').show();
+	$('.single_round').first().html('<span>尝试次数: '+(queryCount++)+'</span>');
 	sendQueryFunc();
 }
 
@@ -84,7 +88,6 @@ var checkTickets = function(row) {
 }
 
 //Ticket type selector & UI
-var ticketType = new Array();
 $('.hdr tr:eq(2) td').each(function(i,e) {
 	ticketType.push(false);
 	if(i<3) return;
@@ -103,12 +106,19 @@ validQueryButton = function() {
 	_validQueryButton();
 	if(!hasTicket) doQuery();
 }
+var _sendQueryFunc = sendQueryFunc;
+sendQueryFunc = function() {
+	$('.single_round').first().html('<span>正在查询,请等待...</span>');
+	_sendQueryFunc();
+	hasTicket = false;
+};
 // 重载遮罩移除方法
 function removeLoadMsg(){
 	$('.datagrid-mask').remove();
 	$('.datagrid-mask-msg').remove();
 	if (hasTicket) {
 		$('#queryListener')[0].dispatchEvent(hasTicketEvent);
+		$('.single_round').first().html('<span>现在有票,可以预定...</span>').show();
 	}
 }
 
