@@ -36,39 +36,99 @@
 	};
 })(jQuery);
 
-$(document).click(function() {
-	if (window.webkitNotifications && window.webkitNotifications.checkPermission() != 0) {
-		window.webkitNotifications.requestPermission();
-	}
-});
+var loginReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/loginAction.*/;
+var queryReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/order\/querySingleAction.*/;
+var url = window.location.href;
 
-function notify(str, timeout) {
-	if (window.webkitNotifications && window.webkitNotifications.checkPermission() == 0) {
-		var notification = webkitNotifications.createNotification(
-			chrome.extension.getURL("icon.ico"),  // icon url - can be relative
-			"12306助手",  // notification title
-			str
-		);
-		notification.show();
-		if (timeout) {
-			setTimeout(function() {
-				notification.cancel();
-			}, timeout);
-		}
-	} else {
-		alert(str);
-	}
+if (url.match(loginReg)) {
+	login();
+} else if (url.match(queryReg)) {
+	query();
 }
 
-chrome.extension.sendRequest(null, function(response) {
-	var loginReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/loginAction.*/;
-	var queryReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/order\/querySingleAction.*/;
-	var url = window.location.href;
+function notify(msg, delay) {
+	chrome.extension.sendRequest({type: 'notify', msg: msg, delay: delay}, function(response) {});
+}
 
-	if (url.match(loginReg)) {
-		login(response.user);
-	} else if (url.match(queryReg)) {
-		query(response.ticket);
+function play(type) {
+	chrome.extension.sendRequest({type: 'play'}, function(response) {});
+}
+
+function login(user) {
+	$('body').append(
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/login.js')+'"/>')
+	).append(
+		$('<div id="loginListener"/>').hide().bind({
+			'showMessage': function() {
+				notify($(this).html(), 10000);
+				//play();
+			}
+		})
+	);
+}
+
+function query(ticket) {
+	$('body').append(
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/query.js')+'"/>')
+	).append(
+		$('<div id="queryListener"/>').hide().bind({
+			'showMessage': function() {
+				notify($(this).html(), 10000);
+			},
+			'bookTicket': function() {
+				book($(this).html().split('#'));
+			}
+		})
+	);
+}
+
+function book(order) {
+	var bookUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest';
+		
+	function submitBookRequest() {
+		$.ajax({
+			type: 'POST',
+			url: bookUrl,
+			data: (function() {
+				var json = $('#orderForm').serializeJSON();
+				
+				json['station_train_code'] = order[0];
+				json['lishi'] = order[1];
+				json['train_start_time'] = order[2];
+				json['trainno'] = order[3];
+				json['from_station_telecode'] = order[4];
+				json['to_station_telecode'] = order[5];
+				json['arrive_time'] = order[6];
+				json['from_station_name'] = order[7];
+				json['to_station_name'] = order[8];
+				json['ypInfoDetail'] = order[9];
+				
+				return json;
+			})(),
+			timeout: 30000,
+			success: function(msg){
+				if (msg.indexOf('<title>消息提示</title>') > -1) {
+					setTimeout(submitBookRequest, 2000);
+				} else {
+					notify('预订成功,请尽快完成订单并提交', 10000);
+					// http://hi.baidu.com/lmcbbat/blog/item/5d40c473fb3a19138601b0c8.html
+					// 写完内容后,必须关闭输出流,否则,将无法显示表单,某些脚本也无法执行
+					//console.log('book: ', document, document.documentElement);
+					document.write(msg);
+					document.write('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/order.js')+'"></script>');
+					//document.write('<div id="orderListener"></div>');
+					document.close();
+					$(window).bind({
+						'showMessage': function() {
+							notify($('#orderListener').html(), 10000);
+						}
+					});
+				}
+			},
+			error: function(msg){
+				setTimeout(submitBookRequest, 2000);
+			}
+		});
 	}
-});
-
+	submitBookRequest();
+}

@@ -25,22 +25,24 @@
 
  */
 
-// 查询过程的监听设置
+// 查询过程的设置
 var queryCount = 1;
 var hasTicket = false;
 var ticketType = [];
 
-var hasTicketEvent = document.createEvent('Event');
 var bookTicketEvent = document.createEvent('Event');
+var showMessageEvent = document.createEvent('Event');
 
-hasTicketEvent.initEvent('hasTicket', true, true);
 bookTicketEvent.initEvent('bookTicket', true, true);
+showMessageEvent.initEvent('showMessage', true, true);
 
-// 显示信息的div设置
-$('.single_round').first().css('text-align', 'left').width(100).show().html('');
+function showMessage(msg) {
+	$('#queryListener').html(msg || '');
+	$('#queryListener')[0].dispatchEvent(showMessageEvent);
+}
 
 function doQuery() {
-	$('.single_round').first().html('<span>尝试次数: '+(queryCount++)+'</span>');
+	showMessage('第 '+(queryCount++)+' 次查询...');
 	sendQueryFunc();
 }
 
@@ -69,6 +71,7 @@ var checkTickets = function(row) {
 					$(this).attr('disabled', true).addClass('yuding_x');
 					$('#queryListener').html(order[1]);
 					$('#queryListener')[0].dispatchEvent(bookTicketEvent);
+					showMessage('正在预定车票,请等待...');
 				}
 			});
 		}
@@ -108,7 +111,7 @@ validQueryButton = function() {
 }
 var _sendQueryFunc = sendQueryFunc;
 sendQueryFunc = function() {
-	$('.single_round').first().html('<span>正在查询,请等待...</span>');
+	showMessage('正在查询,请等待...');
 	_sendQueryFunc();
 	hasTicket = false;
 };
@@ -117,8 +120,7 @@ function removeLoadMsg(){
 	$('.datagrid-mask').remove();
 	$('.datagrid-mask-msg').remove();
 	if (hasTicket) {
-		$('#queryListener')[0].dispatchEvent(hasTicketEvent);
-		$('.single_round').first().html('<span>现在有票,可以预定...</span>').show();
+		showMessage('现在有票,可以预定...');
 	}
 }
 

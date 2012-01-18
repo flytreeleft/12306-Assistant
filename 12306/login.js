@@ -1,7 +1,7 @@
 ﻿/*
   12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
-  
+
   THANKS:
   Hidden, Jingqin Lynn, Kevintop
 
@@ -25,26 +25,54 @@
 
  */
 
-// 登录过程的监听设置
+// 登录过程的设置
 var loginCount = 1;
 var loginTimeout = 6000;
-var successLoginEvent = document.createEvent('Event');
+var stopLogin = false;
+var showMessageEvent = document.createEvent('Event');
 
-successLoginEvent.initEvent('successLogin', true, true);
+showMessageEvent.initEvent('showMessage', true, true);
 
-// 重载原来的登录按钮点击事件
+function showMessage(msg) {
+	$('#randCodeSpan').html(msg || '');
+	$('#loginListener').html(msg || '');
+	$('#loginListener')[0].dispatchEvent(showMessageEvent);
+}
+
+// 重载原来的登录按钮点击和回车事件
 $(document).ready(function() {
-	$('#subLink').html('<span><ins>自动登录</ins></span>')./*unbind('click').removeAttr('onclick').*/click(function(event) {
-		$('#randCodeSpan').html('');
-		checkAysnSuggest();
-		return false;
+	$(document).unbind('keyup').keyup(function(e){
+		if(/^13$/.test(e.keyCode)){
+			if(checkempty($("#UserName").val())
+					&& checkempty($("#password").val())
+					&& checkempty($("#randCode").val())
+					&&checkPassLength($("#password").val())
+					&& checkUserName()){
+				$('#subLink').click();
+			}
+		}
 	});
+
+	$('#subLink')
+		.html('<span><ins>自动登录</ins></span>')
+		.toggle(function() {
+			stopLogin = false;
+			$(this).html('<span><ins>暂停登录</ins></span>');
+			checkAysnSuggest();
+		}, function() {
+			loginCount = 1;
+			stopLogin = true;
+			$(this).html('<span><ins>自动登录</ins></span>');
+			showMessage('');
+		});
 });
 
-// 重载
+// 重载(尝试性登录)
 function checkAysnSuggest() {
-	$('#randCodeSpan').html('第('+(loginCount++)+')次尝试中...');
-	
+	if (stopLogin) return;
+
+	showMessage('第 '+(loginCount++)+' 次登录尝试中...');
+
     $.ajax({
 		url: 'loginAction.do?method=loginAysnSuggest',
         type: 'POST',
@@ -54,18 +82,18 @@ function checkAysnSuggest() {
             if (!data || data.randError != 'Y') {
 				setTimeout(checkAysnSuggest, loginTimeout);
             } else {
-				autoLogin();
+				realLogin();
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-			autoLogin();
+			realLogin();
         }
     });
 }
-
-function autoLogin() {
+// 真正的登录请求
+function realLogin() {
 	var queryUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
-	
+
 	$.ajax({
 		type: 'POST',
 		url: $('#loginForm').attr('action'),
@@ -74,19 +102,19 @@ function autoLogin() {
 		success: function(msg){
 			var msg = msg || '';
 			var errorMsg = /var\s+message\s*=\s*"([^"\s]+)"/g.exec(msg);
-			
+
 			if (errorMsg && errorMsg[1]) {
 				if (errorMsg[1].indexOf('当前访问用户过多') > -1) {
 					setTimeout(checkAysnSuggest, loginTimeout);
 				} else {
-					$('#randCodeSpan').html(errorMsg[1]);
+					showMessage(errorMsg[1]);
 				}
 			} else if (msg.indexOf('请输入正确的验证码') > -1) {
-				$('#randCodeSpan').html('请输入正确的验证码!');
+				showMessage('请输入正确的验证码!');
 				$('#img_rrand_code').attr('src', 'passCodeAction.do?rand=lrand' + '&' + Math.random());
 				$('#randCode').focus();
 			} else if (msg.indexOf('var isLogin= true') > -1) {
-				$('#loginListener')[0].dispatchEvent(successLoginEvent);
+				showMessage('登录成功,开始查询车票吧!');
 				location.replace(queryUrl);
 			} else {
 				setTimeout(checkAysnSuggest, loginTimeout);

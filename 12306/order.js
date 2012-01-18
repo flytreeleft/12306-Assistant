@@ -25,13 +25,26 @@
 
  */
 
+// 提交订单的设置
+var orderCount = 1;
+var stopOrder = false;
 var delayTable = [5000, 7000, 9000, 10000];
+var showMessageEvent = document.createEvent('Event');
+
+showMessageEvent.initEvent('showMessage', true, true);
+
+function showMessage(msg) {
+	$('#orderListener').html(msg || '');
+	window.dispatchEvent(showMessageEvent);
+}
 
 function order(formId) {
 	var orderUrl = "https://dynamic.12306.cn/otsweb/order/confirmPassengerAction.do?method=confirmPassengerInfoSingle";
 	
 	function submitOrderRequest() {
-		if(!submit_form_check(formId)) return;
+		if(stopOrder || !submit_form_check(formId)) return;
+		
+		showMessage('第 '+(orderCount++)+' 次订单提交...');
 		
 		$.ajax({
 			type: "POST",
@@ -43,7 +56,6 @@ function order(formId) {
 				var token = /<input.*?name="org\.apache\.struts\.taglib\.html\.TOKEN" value="([^"]+)">/g.exec(msg);
 				var errorMsg = /var\s+message\s*=\s*"([^"\s]+)"/g.exec(msg);
 				
-				//console.log("order-token: ", token);
 				if (token && token[1]) {
 					$("input[name='org.apache.struts.taglib.html.TOKEN']").val(token[1]);
 				}
@@ -54,7 +66,10 @@ function order(formId) {
 				} else if (msg.lastIndexOf("请不要重复提交") > -1
 							|| msg.lastIndexOf("当前提交订单用户过多") > -1
 							|| msg.indexOf("<title>消息提示</title>") > -1) {
-					setTimeout(submitOrderRequest, delayTable[Math.floor(Math.random()*delayTable.length+1)]);
+					var delay = delayTable[Math.floor(Math.random()*delayTable.length+1)];
+					
+					showMessage('订单提交失败,'+(delay/1000)+' 秒后重试...');
+					setTimeout(submitOrderRequest, delay);
 					
 					$(":button").attr("disabled", true).addClass("long_button_x");
 				} else {
@@ -72,6 +87,19 @@ function order(formId) {
 	submitOrderRequest();
 }
 
-$(".tj_btn button:last-child").unbind("click").removeAttr("onclick").click(function(event) {
-	order("confirmPassenger");
-});
+$(".tj_btn button:last-child")
+	.unbind("click")
+	.removeAttr("onclick")
+	.html('自动提交')
+	.toggle(function() {
+		stopOrder = false;
+		$(this).html('暂停提交');
+		order("confirmPassenger");
+	}, function() {
+		orderCount = 1;
+		stopOrder = true;
+		$(this).html('自动提交');
+		showMessage('');
+	});
+
+$('body').append($('<div id="orderListener"/>').hide());

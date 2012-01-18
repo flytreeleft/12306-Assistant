@@ -29,10 +29,76 @@
 <script type="text/javascript">
 var user = {name:'', password:''};
 var ticket = {fromStation:'', toStation:'', startDate:'', trainNo:''};
+var notifyIcons = {
+	'info': 'icon.ico'
+};
+var tipSounds = {
+	'tip': 'song.ogg'
+};
+var notificationStack = [];
+var audio = null;
+
+// 显示提示信息
+function notify(msg, type, delay) {
+	var type = type || 'info',
+		msg = msg || '',
+		delay = Math.ceil((delay || 2000)/1000)*1000;
+	
+	if (webkitNotifications && msg) {
+		var notification = webkitNotifications.createNotification(
+			notifyIcons[type],
+			'12306助手',
+			msg
+		);
+		// 三个以上的将不能立即显示,所以先取消最前面
+		if (notificationStack.length >= 3) {
+			notificationStack.shift().notify.cancel();
+		}
+		notification.show();
+		notificationStack.push({
+			start: new Date(),
+			delay: delay,
+			notify: notification
+		});
+	}
+}
+
+// 播放提示音乐
+function play(type) {
+	var type = type || 'tip';
+	
+	if (audio && !audio.paused) audio.pause();
+	
+	audio = new Audio(tipSounds[type]);
+	audio.loop = false;
+	audio.play();
+}
 
 function init() {
+	setInterval(function() {
+		// 定时取消到期的提示信息
+		var end = new Date();
+		while(notificationStack.length > 0) {
+			var message = notificationStack[0];
+			if (end.getTime() - message.start.getTime() >= message.delay) {
+				message.notify.cancel();
+				notificationStack.shift();
+			} else {
+				break;
+			}
+		}
+	}, 500);
+
 	chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-		sendResponse({ticket: ticket, user: user});
+		var type = request ? request.type : '';
+		
+		if (type == 'notify') {
+			notify(request.msg, '', request.delay);
+		} else if (type == 'play') {
+			play('tip');
+		} else {
+			sendResponse();
+		}
 	});
 }
 </script>
