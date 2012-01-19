@@ -30,19 +30,23 @@
 var user = {name:'', password:''};
 var ticket = {fromStation:'', toStation:'', startDate:'', trainNo:''};
 var notifyIcons = {
-	'info': 'icon.ico'
+	'default': './images/default.ico'
 };
 var tipSounds = {
-	'tip': 'song.ogg'
+	'default': './sound/default.ogg',
+	'login': './sound/default.ogg',
+	'ticket': './sound/default.ogg',
+	'book': './sound/default.ogg',
+	'order': './sound/default.ogg'
 };
 var notificationStack = [];
 var audio = null;
 
 // 显示提示信息
 function notify(msg, type, delay) {
-	var type = type || 'info',
+	var type = type || 'default',
 		msg = msg || '',
-		delay = Math.ceil((delay || 2000)/1000)*1000;
+		delay = Math.ceil((delay || 5000)/1000)*1000;
 	
 	if (webkitNotifications && msg) {
 		var notification = webkitNotifications.createNotification(
@@ -65,7 +69,7 @@ function notify(msg, type, delay) {
 
 // 播放提示音乐
 function play(type) {
-	var type = type || 'tip';
+	var type = type || 'default';
 	
 	if (audio && !audio.paused) audio.pause();
 	
@@ -90,12 +94,12 @@ function init() {
 	}, 500);
 
 	chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-		var type = request ? request.type : '';
+		var action = request ? request.action : '';
 		
-		if (type == 'notify') {
-			notify(request.msg, '', request.delay);
-		} else if (type == 'play') {
-			play('tip');
+		if (action == 'notify') {
+			notify(request.msg, request.type, request.delay);
+		} else if (action == 'play') {
+			play(request.type);
 		} else {
 			sendResponse();
 		}

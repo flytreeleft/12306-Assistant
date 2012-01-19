@@ -29,13 +29,17 @@
 var orderCount = 1;
 var stopOrder = false;
 var delayTable = [5000, 7000, 9000, 10000];
-var showMessageEvent = document.createEvent('Event');
+var messageEvent = document.createEvent('Event');
+var orderSuccessEvent = document.createEvent('Event');
 
-showMessageEvent.initEvent('showMessage', true, true);
+messageEvent.initEvent('message', true, true);
+orderSuccessEvent.initEvent('orderSuccess', true, true);
+
+$('body').append($('<div id="messageListener"/>').hide());
 
 function showMessage(msg) {
-	$('#orderListener').html(msg || '');
-	window.dispatchEvent(showMessageEvent);
+	$('#messageListener').html(msg || '');
+	window.dispatchEvent(messageEvent);
 }
 
 function order(formId) {
@@ -73,10 +77,12 @@ function order(formId) {
 					
 					$(":button").attr("disabled", true).addClass("long_button_x");
 				} else {
+					$('body').html(msg);
+					window.dispatchEvent(orderSuccessEvent);
 					// http://hi.baidu.com/lmcbbat/blog/item/5d40c473fb3a19138601b0c8.html
 					// 写完内容后,必须关闭输出流,否则,将无法显示表单,某些脚本也无法执行
-					document.write(msg);
-					document.close();
+					//document.write(msg);
+					//document.close();
 				}
 			},
 			error: function(msg){
@@ -101,5 +107,3 @@ $(".tj_btn button:last-child")
 		$(this).html('自动提交');
 		showMessage('');
 	});
-
-$('body').append($('<div id="orderListener"/>').hide());

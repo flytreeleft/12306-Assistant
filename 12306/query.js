@@ -31,14 +31,18 @@ var hasTicket = false;
 var ticketType = [];
 
 var bookTicketEvent = document.createEvent('Event');
-var showMessageEvent = document.createEvent('Event');
+var messageEvent = document.createEvent('Event');
+var hasTicketEvent = document.createEvent('Event');
 
 bookTicketEvent.initEvent('bookTicket', true, true);
-showMessageEvent.initEvent('showMessage', true, true);
+messageEvent.initEvent('message', true, true);
+hasTicketEvent.initEvent('hasTicket', true, true);
+
+$('body').append($('<div id="messageListener"/>').hide());
 
 function showMessage(msg) {
-	$('#queryListener').html(msg || '');
-	$('#queryListener')[0].dispatchEvent(showMessageEvent);
+	$('#messageListener').html(msg || '');
+	window.dispatchEvent(messageEvent);
 }
 
 function doQuery() {
@@ -69,9 +73,8 @@ var checkTickets = function(row) {
 			$(e).unbind('click').removeAttr('onclick').click(function(event) {
 				if (order && order[1]) {
 					$(this).attr('disabled', true).addClass('yuding_x');
-					$('#queryListener').html(order[1]);
-					$('#queryListener')[0].dispatchEvent(bookTicketEvent);
-					showMessage('正在预定车票,请等待...');
+					window.dispatchEvent(bookTicketEvent);
+					book(order[1].split('#'));
 				}
 			});
 		}
@@ -120,7 +123,7 @@ function removeLoadMsg(){
 	$('.datagrid-mask').remove();
 	$('.datagrid-mask-msg').remove();
 	if (hasTicket) {
-		showMessage('现在有票,可以预定...');
+		window.dispatchEvent(hasTicketEvent);
 	}
 }
 
