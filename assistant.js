@@ -30,9 +30,9 @@ $(document).ready(function() {
 	var queryReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/order\/querySingleAction.*/;
 	var url = window.location.href;
 
-	$(window).bind({
+	$('body').bind({
 		'message': function() {
-			notify($('#messageListener').html());
+			notify($(this).attr('message'));
 		}
 	});
 	
@@ -43,8 +43,8 @@ $(document).ready(function() {
 	}
 });
 
-function notify(msg, type, delay) {
-	chrome.extension.sendRequest({action: 'notify', type: type, msg: msg, delay: delay}, function(response) {});
+function notify(msg, type) {
+	chrome.extension.sendRequest({action: 'notify', type: type, msg: msg}, function(response) {});
 }
 
 function play(type) {
@@ -54,8 +54,7 @@ function play(type) {
 function login(user) {
 	$('body').append(
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/login.js')+'"/>')
-	);
-	$(window).bind({
+	).bind({
 		'loginSuccess': function() {
 			notify('登录成功,开始查询车票吧!');
 			play('login');
@@ -68,8 +67,7 @@ function query(ticket) {
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/query.js')+'"/>')
 	).append(
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/book.js')+'"/>')
-	);
-	$(window).bind({
+	).bind({
 		'hasTicket': function() {
 			notify('现在有票,可以预定...');
 			play('ticket');
@@ -88,9 +86,7 @@ function query(ticket) {
 function book() {
 	$('body').append(
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/order.js')+'"/>')
-	);
-	
-	$(window).bind({
+	).bind({
 		'orderSuccess': function() {
 			notify('订单提交成功,请在规定时间内完成支付');
 			play('order');

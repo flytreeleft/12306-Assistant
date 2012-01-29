@@ -38,11 +38,8 @@ bookTicketEvent.initEvent('bookTicket', true, true);
 messageEvent.initEvent('message', true, true);
 hasTicketEvent.initEvent('hasTicket', true, true);
 
-$('body').append($('<div id="messageListener"/>').hide());
-
 function showMessage(msg) {
-	$('#messageListener').html(msg || '');
-	window.dispatchEvent(messageEvent);
+	$('body').attr('message', msg || '')[0].dispatchEvent(messageEvent);
 }
 
 function doQuery() {
@@ -73,7 +70,7 @@ var checkTickets = function(row) {
 			$(e).unbind('click').removeAttr('onclick').click(function(event) {
 				if (order && order[1]) {
 					$(this).attr('disabled', true).addClass('yuding_x');
-					window.dispatchEvent(bookTicketEvent);
+					$('body')[0].dispatchEvent(bookTicketEvent);
 					book(order[1].split('#'));
 				}
 			});
@@ -123,7 +120,7 @@ function removeLoadMsg(){
 	$('.datagrid-mask').remove();
 	$('.datagrid-mask-msg').remove();
 	if (hasTicket) {
-		window.dispatchEvent(hasTicketEvent);
+		$('body')[0].dispatchEvent(hasTicketEvent);
 	}
 }
 

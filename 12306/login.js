@@ -27,7 +27,7 @@
 
 // 登录过程的设置
 var loginCount = 1;
-var loginTimeout = 6000;
+var loginTimeout = 3000;
 var stopLogin = false;
 var messageEvent = document.createEvent('Event');
 var loginSuccessEvent = document.createEvent('Event');
@@ -37,14 +37,11 @@ loginSuccessEvent.initEvent('loginSuccess', true, true);
 
 function showMessage(msg) {
 	$('#randCodeSpan').html(msg || '');
-	$('#messageListener').html(msg || '');
-	window.dispatchEvent(messageEvent);
+	$('body').attr('message', msg || '')[0].dispatchEvent(messageEvent);
 }
 
 // 重载原来的登录按钮点击和回车事件
 $(document).ready(function() {
-	$('body').append($('<div id="messageListener"/>').hide());
-	
 	$(document).unbind('keyup').keyup(function(e){
 		if(/^13$/.test(e.keyCode)){
 			if(checkempty($("#UserName").val())
@@ -118,7 +115,7 @@ function realLogin() {
 				$('#img_rrand_code').attr('src', 'passCodeAction.do?rand=lrand' + '&' + Math.random());
 				$('#randCode').focus();
 			} else if (msg.indexOf('var isLogin= true') > -1) {
-				window.dispatchEvent(loginSuccessEvent);
+				$('body')[0].dispatchEvent(loginSuccessEvent);
 				location.replace(queryUrl);
 			} else {
 				setTimeout(checkAysnSuggest, loginTimeout);

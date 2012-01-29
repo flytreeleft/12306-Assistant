@@ -73,7 +73,7 @@ function book(order) {
 					setTimeout(submitBookRequest, 2000);
 				} else {
 					$('body').html(msg); // 不再细化/较真了,就这么弄!
-					window.dispatchEvent(bookSuccessEvent);
+					$('body')[0].dispatchEvent(bookSuccessEvent);
 				}
 			},
 			error: function(msg){

@@ -43,15 +43,15 @@ var notificationStack = [];
 var audio = null;
 
 // 显示提示信息
-function notify(msg, type, delay) {
+function notify(msg, type) {
 	var type = type || 'default',
 		msg = msg || '',
-		delay = Math.ceil((delay || 5000)/1000)*1000;
+		delay = 5000;
 	
 	if (webkitNotifications && msg) {
 		var notification = webkitNotifications.createNotification(
 			notifyIcons[type],
-			'12306助手',
+			'',
 			msg
 		);
 		// 三个以上的将不能立即显示,所以先取消最前面
@@ -64,6 +64,15 @@ function notify(msg, type, delay) {
 			delay: delay,
 			notify: notification
 		});
+		setTimeout(function() {
+			// 取消到期的提示信息
+			var end = new Date();
+			var message = notificationStack.length > 0 ? notificationStack[0] : null;
+			if (message
+					&& (end.getTime() - message.start.getTime() >= message.delay)) {
+				notificationStack.shift().notify.cancel();
+			}
+		}, delay);
 	}
 }
 
@@ -79,20 +88,6 @@ function play(type) {
 }
 
 function init() {
-	setInterval(function() {
-		// 定时取消到期的提示信息
-		var end = new Date();
-		while(notificationStack.length > 0) {
-			var message = notificationStack[0];
-			if (end.getTime() - message.start.getTime() >= message.delay) {
-				message.notify.cancel();
-				notificationStack.shift();
-			} else {
-				break;
-			}
-		}
-	}, 500);
-
 	chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		var action = request ? request.action : '';
 		

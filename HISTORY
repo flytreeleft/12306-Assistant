@@ -1,0 +1,3 @@
+2012-01-29:
+	1. 修改后台提示消息自动消失的机制(background.html);
+	2. 将Content Script与嵌入页面的通信事件绑定到Body Dom上,并将提示信息内容作为body的message属性值;
