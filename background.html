@@ -40,7 +40,7 @@ var tipSounds = {
 	'order': './sound/default.ogg'
 };
 var notificationStack = [];
-var audio = null;
+var audio = new Audio();
 
 // 显示提示信息
 function notify(msg, type) {
@@ -82,7 +82,7 @@ function play(type) {
 	
 	if (audio && !audio.paused) audio.pause();
 	
-	audio = new Audio(tipSounds[type]);
+	audio.src = tipSounds[type];
 	audio.loop = false;
 	audio.play();
 }

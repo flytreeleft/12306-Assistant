@@ -1,7 +1,7 @@
 ﻿/*
   12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
-  
+
   THANKS:
   Hidden, Jingqin Lynn, Kevintop
 
@@ -39,6 +39,7 @@ messageEvent.initEvent('message', true, true);
 hasTicketEvent.initEvent('hasTicket', true, true);
 
 function showMessage(msg) {
+	//alert(msg);
 	$('body').attr('message', msg || '')[0].dispatchEvent(messageEvent);
 }
 
@@ -59,14 +60,14 @@ tbl.addEventListener('DOMNodeInserted', function() {
 var checkTickets = function(row) {
 	var hasTicket = false;
 	var canBook = true;
-	
+
 	$('td input[type=button]', row).each(function(i, e) {
 		if(e.classList.contains('yuding_x')) {
 			canBook = false;
 		} else { // 重新绑定预订按钮事件
 			var clickStr = $(e).attr('onclick');
 			var order = /javascript:getSelected\('([^']+)'\)/g.exec(clickStr);
-			
+
 			$(e).unbind('click').removeAttr('onclick').click(function(event) {
 				if (order && order[1]) {
 					$(this).attr('disabled', true).addClass('yuding_x');
@@ -109,12 +110,37 @@ validQueryButton = function() {
 	_validQueryButton();
 	if(!hasTicket) doQuery();
 }
-var _sendQueryFunc = sendQueryFunc;
+// 由于原页面对查询按钮进行了多次重复绑定,故将该点击事件进行重载
+// 并对首次点击事件进行重新绑定
 sendQueryFunc = function() {
+	var _id=$(this).attr("id");
+	if(_id=='stu_submitQuery'){
+		clickBuyStudentTicket='Y';
+	}else{
+		clickBuyStudentTicket='N';
+	}
+
+	var validQuery = canquery();
+	if (!validQuery) {
+		return;
+	}
 	showMessage('正在查询,请等待...');
-	_sendQueryFunc();
 	hasTicket = false;
+
+	stu_invalidQueryButton();
+	invalidQueryButton();
+
+	loadData();
+	//处理发送预订请求的数据
+	prepareOrderData();
 };
+$("#submitQuery")
+		.unbind('click').removeAttr('onclick')
+		.click(sendQueryFunc);
+$("#stu_submitQuery")
+		.unbind('click').removeAttr('onclick')
+		.click(sendQueryFunc);
+
 // 重载遮罩移除方法
 function removeLoadMsg(){
 	$('.datagrid-mask').remove();
@@ -127,9 +153,9 @@ function removeLoadMsg(){
 // 加载查询数据开始
 function loadData() {
 	var ctx = 'https://dynamic.12306.cn/otsweb';
-	
+
 	showLoadMsg($('#gridbox'));
-	
+
 	$.ajax( {
 		url : ctx + '/order/querySingleAction.do?method=queryLeftTicket',
 		type : 'GET',
@@ -162,7 +188,7 @@ function loadData() {
 			mygrid.parse(data,'csv');
 			mygrid.stopFastOperations();
 			dealwithQueryInfo(mygrid);
-			
+
 			removeLoadMsg();
 		},
 		error : function(e) {

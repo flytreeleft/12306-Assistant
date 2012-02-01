@@ -52,17 +52,20 @@ function play(type) {
 }
 
 function login(user) {
+	var queryUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
+	
 	$('body').append(
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/login.js')+'"/>')
 	).bind({
 		'loginSuccess': function() {
 			notify('登录成功,开始查询车票吧!');
 			play('login');
+			window.location.href = queryUrl;
 		}
 	});
 }
 
-function query(ticket) {
+function query(ticket) {	
 	$('body').append(
 		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/query.js')+'"/>')
 	).append(

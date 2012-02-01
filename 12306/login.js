@@ -29,6 +29,7 @@
 var loginCount = 1;
 var loginTimeout = 3000;
 var stopLogin = false;
+var delayTable = [3000, 5000, 7000, 9000];
 var messageEvent = document.createEvent('Event');
 var loginSuccessEvent = document.createEvent('Event');
 
@@ -41,33 +42,44 @@ function showMessage(msg) {
 }
 
 // 重载原来的登录按钮点击和回车事件
-$(document).ready(function() {
-	$(document).unbind('keyup').keyup(function(e){
-		if(/^13$/.test(e.keyCode)){
-			if(checkempty($("#UserName").val())
-					&& checkempty($("#password").val())
-					&& checkempty($("#randCode").val())
-					&&checkPassLength($("#password").val())
-					&& checkUserName()){
-				$('#subLink').click();
-			}
+$(document).unbind('keyup').keyup(function(e){
+	if(/^13$/.test(e.keyCode)){
+		if(checkempty($("#UserName").val())
+				&& checkempty($("#password").val())
+				&& checkempty($("#randCode").val())
+				&& checkPassLength($("#password").val())
+				&& checkUserName()){
+			$('#subLink').click();
+		} else {
+			showMessage('请确保 登录名/密码/验证码 不为空,且密码长度在6位以上');
 		}
-	});
-
-	$('#subLink')
-		.html('<span><ins>自动登录</ins></span>')
-		.toggle(function() {
-			stopLogin = false;
-			$(this).html('<span><ins>暂停登录</ins></span>');
-			checkAysnSuggest();
-		}, function() {
-			loginCount = 1;
-			stopLogin = true;
-			$(this).html('<span><ins>自动登录</ins></span>');
-			showMessage('');
-		});
+	}
 });
 
+$('#subLink')
+	.html('<span><ins>自动登录</ins></span>')
+	.unbind('click').removeAttr('onclick')
+	.toggle(function() {
+		loginCount = 1;
+		stopLogin = false;
+		$(this).html('<span><ins>暂停登录</ins></span>');
+		checkAysnSuggest();
+	}, function() {
+		stopLogin = true;
+		$(this).html('<span><ins>自动登录</ins></span>');
+	});
+// 提交的表单一般是按钮所在的form节点
+var submitForm = $('#subLink').parents('form').get(0);
+
+// 重登录,自动选择登录间隔时间
+function relogin() {
+	var delay = delayTable[Math.floor(Math.random()*delayTable.length)];
+
+	showMessage('登录失败,'+(delay/1000)+' 秒后重试...');
+	setTimeout(checkAysnSuggest, delay);
+}
+
+// 服务器可能要求先进行尝试性登录,所以需要迂回操作
 // 重载(尝试性登录)
 function checkAysnSuggest() {
 	if (stopLogin) return;
@@ -81,7 +93,7 @@ function checkAysnSuggest() {
 		timeout: 30000,
         success: function(data) {
             if (!data || data.randError != 'Y') {
-				setTimeout(checkAysnSuggest, loginTimeout);
+				relogin();
             } else {
 				realLogin();
             }
@@ -93,36 +105,42 @@ function checkAysnSuggest() {
 }
 // 真正的登录请求
 function realLogin() {
-	var queryUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
-
 	$.ajax({
 		type: 'POST',
-		url: $('#loginForm').attr('action'),
-		data: $('#loginForm').serialize(),
+		url: $(submitForm).attr('action'),
+		data: $(submitForm).serialize(),
 		timeout: 30000,
-		success: function(msg){
-			var msg = msg || '';
-			var errorMsg = /var\s+message\s*=\s*"([^"\s]+)"/g.exec(msg);
+		success: function(response){
+			var response = response || '';
+			var errorMsg = /var\s+message\s*=\s*"([^"]+)"/g.exec(response);
+			var msg = errorMsg && errorMsg[1] ? errorMsg[1] : '';
+			var retry = false;
 
-			if (errorMsg && errorMsg[1]) {
-				if (errorMsg[1].indexOf('当前访问用户过多') > -1) {
-					setTimeout(checkAysnSuggest, loginTimeout);
+			if (stopLogin) return;
+
+			if (msg.indexOf('当前访问用户过多') > -1) {
+				retry = true;
+			} else if (!msg) {
+				if (response.indexOf('请输入正确的验证码') > -1) {
+					msg = '请输入正确的验证码!';
+					$('#img_rrand_code').click();
+					$('#randCode').attr('value', '').focus();
+				} else if (response.indexOf('var isLogin= true') > -1) {
+					$('body')[0].dispatchEvent(loginSuccessEvent);
 				} else {
-					showMessage(errorMsg[1]);
+					retry = true;
 				}
-			} else if (msg.indexOf('请输入正确的验证码') > -1) {
-				showMessage('请输入正确的验证码!');
-				$('#img_rrand_code').attr('src', 'passCodeAction.do?rand=lrand' + '&' + Math.random());
-				$('#randCode').focus();
-			} else if (msg.indexOf('var isLogin= true') > -1) {
-				$('body')[0].dispatchEvent(loginSuccessEvent);
-				location.replace(queryUrl);
-			} else {
-				setTimeout(checkAysnSuggest, loginTimeout);
+			}
+
+			if (retry) {
+				relogin();
+			} else if (msg) { // 显示错误信息,并通过点击切换按钮状态
+				showMessage(msg);
+				$('#subLink').click();
 			}
 		},
-		error: function(msg){
-			setTimeout(checkAysnSuggest, loginTimeout);
+		error: function(response){
+			relogin();
 		}
 	});
 }

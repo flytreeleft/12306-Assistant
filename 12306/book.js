@@ -1,7 +1,7 @@
 ﻿/*
   12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
-  
+
   THANKS:
   Hidden, Jingqin Lynn, Kevintop
 
@@ -24,7 +24,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
  */
- 
+
 // http://api.jquery.com/serializeArray/
 (function($){
 	$.fn.serializeJSON = function() {
@@ -42,18 +42,19 @@ var bookSuccessEvent = document.createEvent('Event');
 
 bookSuccessEvent.initEvent('bookSuccess', true, true);
 
+// 预定车票
 function book(order) {
 	var bookUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest';
-		
+
 	function submitBookRequest() {
 		showMessage('第 '+(bookCount++)+' 次预定...');
-		
+
 		$.ajax({
 			type: 'POST',
 			url: bookUrl,
 			data: (function() {
 				var json = $('#orderForm').serializeJSON();
-				
+
 				json['station_train_code'] = order[0];
 				json['lishi'] = order[1];
 				json['train_start_time'] = order[2];
@@ -64,19 +65,19 @@ function book(order) {
 				json['from_station_name'] = order[7];
 				json['to_station_name'] = order[8];
 				json['ypInfoDetail'] = order[9];
-				
+
 				return json;
 			})(),
 			timeout: 30000,
-			success: function(msg){
-				if (msg.indexOf('<title>消息提示</title>') > -1) {
-					setTimeout(submitBookRequest, 2000);
-				} else {
-					$('body').html(msg); // 不再细化/较真了,就这么弄!
+			success: function(response){
+				if (response.indexOf('提交订单验证码') > -1) {
+					$('body').html(response); // 不再细化/较真了,就这么弄!
 					$('body')[0].dispatchEvent(bookSuccessEvent);
+				} else {
+					setTimeout(submitBookRequest, 2000);
 				}
 			},
-			error: function(msg){
+			error: function(response){
 				setTimeout(submitBookRequest, 2000);
 			}
 		});
