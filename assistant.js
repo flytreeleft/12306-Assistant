@@ -1,7 +1,7 @@
 /*
   12306 Assistant
   Copyright (C) 2012 flytreeleft (flytreeleft@126.com)
-  
+
   THANKS:
   Hidden, Jingqin Lynn, Kevintop
 
@@ -26,19 +26,20 @@
  */
 
 $(document).ready(function() {
-	var loginReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/loginAction.*/;
-	var queryReg = /(http|https):\/\/dynamic\.12306\.cn\/otsweb\/order\/querySingleAction.*/;
-	var url = window.location.href;
-
 	$('body').bind({
 		'message': function() {
 			notify($(this).attr('message'));
 		}
 	});
-	
-	if (url.match(loginReg)) {
-		login();
-	} else if (url.match(queryReg)) {
+
+	if ($('head title').html() == '登录') {
+		if ($('head').html().match(/var\s+isLogin\s*=\s*true/g)) {
+			// 已经登录,则直接跳转到查询页面
+			window.location.href = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
+		} else {
+			login();
+		}
+	} else if ($('head title').html() == '车票预订') {
 		query();
 	}
 });
@@ -52,24 +53,22 @@ function play(type) {
 }
 
 function login(user) {
-	var queryUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
-	
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/login.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/login.js')+'"/>')
 	).bind({
 		'loginSuccess': function() {
 			notify('登录成功,开始查询车票吧!');
 			play('login');
-			window.location.href = queryUrl;
+			window.location.href = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
 		}
 	});
 }
 
-function query(ticket) {	
+function query(ticket) {
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/query.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/query.js')+'"/>')
 	).append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/book.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/book.js')+'"/>')
 	).bind({
 		'hasTicket': function() {
 			notify('现在有票,可以预定...');
@@ -88,7 +87,7 @@ function query(ticket) {
 
 function book() {
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('./12306/order.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/order.js')+'"/>')
 	).bind({
 		'orderSuccess': function() {
 			notify('订单提交成功,请在规定时间内完成支付');
