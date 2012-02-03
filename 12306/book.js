@@ -70,6 +70,15 @@ function book(order) {
 			})(),
 			timeout: 30000,
 			success: function(response){
+				var response = response || '';
+				var errorMsg = /var\s+message\s*=\s*"([^"]+)"/g.exec(response);
+				var msg = errorMsg && errorMsg[1] ? errorMsg[1] : '';
+				
+				if (msg) { // 显示错误信息
+					console.log('book error message: ', msg);
+					showMessage(msg);
+				}
+			
 				if (response.indexOf('提交订单验证码') > -1) {
 					$('body').html(response); // 不再细化/较真了,就这么弄!
 					$('body')[0].dispatchEvent(bookSuccessEvent);

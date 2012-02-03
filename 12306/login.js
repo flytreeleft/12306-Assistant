@@ -135,6 +135,7 @@ function realLogin() {
 			if (retry) {
 				relogin();
 			} else if (msg) { // 显示错误信息,并通过点击切换按钮状态
+				console.log('login error message: ', msg);
 				showMessage(msg);
 				$('#subLink').click();
 			}

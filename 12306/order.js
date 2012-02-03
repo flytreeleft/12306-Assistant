@@ -81,6 +81,7 @@ function order() {
 		data: $(submitForm).serialize(),
 		timeout: 30000,
 		success: function(response){
+			var response = response || '';
 			// <input type="hidden" name="org.apache.struts.taglib.html.TOKEN" value="98ae94ddfede3d069fddb9225e9f558d">
 			var token = /<input.*?name="org\.apache\.struts\.taglib\.html\.TOKEN" value="([^"]+)">/g.exec(response);
 			var errorMsg = /var\s+message\s*=\s*"([^"]+)"/g.exec(response);
@@ -111,6 +112,7 @@ function order() {
 			if (retry) {
 				reorder();
 			} else if (msg) { // 显示错误信息,并通过点击切换按钮状态
+				console.log('order error message: ', msg);
 				showMessage(msg);
 				if (msg.indexOf('验证码') > -1) {
 					$('#img_rrand_code').click();
