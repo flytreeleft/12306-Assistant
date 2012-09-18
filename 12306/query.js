@@ -70,9 +70,11 @@ var checkTickets = function(row) {
 
 			$(e).unbind('click').removeAttr('onclick').click(function(event) {
 				if (order && order[1]) {
-					$(this).attr('disabled', true).addClass('yuding_x');
-					$('body')[0].dispatchEvent(bookTicketEvent);
-					book(order[1].split('#'));
+					if (!checkBeyondMixTicketNum()) {
+						$(this).attr('disabled', true).addClass('yuding_x');
+						$('body')[0].dispatchEvent(bookTicketEvent);
+						book(order[1].split('#'));
+					}
 				}
 			});
 		}

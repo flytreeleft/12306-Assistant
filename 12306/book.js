@@ -44,7 +44,7 @@ bookSuccessEvent.initEvent('bookSuccess', true, true);
 
 // 预定车票
 function book(order) {
-	var bookUrl = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=submutOrderRequest';
+	var bookUrl = ctx + "/order/querySingleAction.do?method=submutOrderRequest";
 
 	function submitBookRequest() {
 		showMessage('第 '+(bookCount++)+' 次预定...');
@@ -53,18 +53,19 @@ function book(order) {
 			type: 'POST',
 			url: bookUrl,
 			data: (function() {
+				$('#station_train_code').val(order[0]);
+				$('#lishi').val(order[1]);
+				$('#train_start_time').val(order[2]);
+				$('#trainno').val(order[3]);
+				$('#from_station_telecode').val(order[4]);
+				$('#to_station_telecode').val(order[5]);
+				$('#arrive_time').val(order[6]);
+				$('#from_station_name').val(order[7]);
+				$('#to_station_name').val(order[8]);
+				$('#ypInfoDetail').val(order[9]);
+				$('#mmStr').val(order[10]);
+				
 				var json = $('#orderForm').serializeJSON();
-
-				json['station_train_code'] = order[0];
-				json['lishi'] = order[1];
-				json['train_start_time'] = order[2];
-				json['trainno'] = order[3];
-				json['from_station_telecode'] = order[4];
-				json['to_station_telecode'] = order[5];
-				json['arrive_time'] = order[6];
-				json['from_station_name'] = order[7];
-				json['to_station_name'] = order[8];
-				json['ypInfoDetail'] = order[9];
 
 				return json;
 			})(),

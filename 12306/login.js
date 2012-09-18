@@ -50,9 +50,9 @@ $(document).unbind('keyup').keyup(function(e){
 				&& checkPassLength($("#password").val())
 				&& checkUserName()){
 			$('#subLink').click();
-		} else {
+		}/* else {
 			showMessage('请确保 登录名/密码/验证码 不为空,且密码长度在6位以上');
-		}
+		}*/
 	}
 });
 
@@ -92,6 +92,7 @@ function checkAysnSuggest() {
         dataType: 'json',
 		timeout: 30000,
         success: function(data) {
+			data && $("#loginRand").val(data.loginRand);
             if (!data || data.randError != 'Y') {
 				relogin();
             } else {
@@ -105,6 +106,12 @@ function checkAysnSuggest() {
 }
 // 真正的登录请求
 function realLogin() {
+	var refundLoginCheck = $("[name='refundLoginCheck']");
+	if (refundLoginCheck && (refundLoginCheck.attr("checked") == true)) {
+		$("#refundLogin").val('Y');
+	} else {
+		$("#refundLogin").val('N');
+	}
 	$.ajax({
 		type: 'POST',
 		url: $(submitForm).attr('action'),
