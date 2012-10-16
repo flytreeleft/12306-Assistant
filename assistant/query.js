@@ -30,13 +30,17 @@ var queryCount = 1;
 var hasTicket = false;
 var ticketType = [];
 
+var periodOfPresaleEvent = document.createEvent('Event');
 var bookTicketEvent = document.createEvent('Event');
 var messageEvent = document.createEvent('Event');
 var hasTicketEvent = document.createEvent('Event');
 
+periodOfPresaleEvent.initEvent('periodOfPresale', true, true);
 bookTicketEvent.initEvent('bookTicket', true, true);
 messageEvent.initEvent('message', true, true);
 hasTicketEvent.initEvent('hasTicket', true, true);
+
+$('body').attr('periodOfPresale', minPeriod + '&' + maxPeriod)[0].dispatchEvent(periodOfPresaleEvent);
 
 function showMessage(msg) {
 	//alert(msg);

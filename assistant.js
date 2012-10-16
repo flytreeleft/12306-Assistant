@@ -37,10 +37,14 @@ $(document).ready(function() {
 			// 已经登录,则直接跳转到查询页面
 			window.location.href = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
 		} else {
-			login();
+			chrome.extension.sendRequest({action: 'user'}, function(user) {
+				login(user);
+			});
 		}
 	} else if ($('head title').html() == '车票预订') {
-		query();
+		chrome.extension.sendRequest({action: 'ticket'}, function(ticket) {
+			query(ticket);
+		});
 	}
 });
 
@@ -54,7 +58,7 @@ function play(type) {
 
 function login(user) {
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/login.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('assistant/login.js')+'"/>')
 	).bind({
 		'loginSuccess': function() {
 			notify('登录成功,开始查询车票吧!');
@@ -62,14 +66,20 @@ function login(user) {
 			window.location.href = 'https://dynamic.12306.cn/otsweb/order/querySingleAction.do?method=init';
 		}
 	});
+	for (var id in user) {
+		user[id] && $('#'+id).val(user[id]);
+	}
 }
 
 function query(ticket) {
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/query.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('assistant/query.js')+'"/>')
 	).append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/book.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('assistant/book.js')+'"/>')
 	).bind({
+		'periodOfPresale': function() {
+			chrome.extension.sendRequest({action: 'periodOfPresale', value: $(this).attr('periodOfPresale')}, function() {});
+		},
 		'hasTicket': function() {
 			notify('现在有票,可以预定...');
 			play('ticket');
@@ -83,11 +93,14 @@ function query(ticket) {
 			book();
 		}
 	});
+	for (var id in ticket) {
+		ticket[id] && $('#'+id).val(ticket[id]);
+	}
 }
 
 function book() {
 	$('body').append(
-		$('<script type="text/javascript" src="'+chrome.extension.getURL('12306/order.js')+'"/>')
+		$('<script type="text/javascript" src="'+chrome.extension.getURL('assistant/order.js')+'"/>')
 	).bind({
 		'orderSuccess': function() {
 			notify('订单提交成功,请在规定时间内完成支付');

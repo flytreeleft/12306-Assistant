@@ -27,8 +27,9 @@
 
 <html>
 <script type="text/javascript">
-var user = {name:'', password:''};
-var ticket = {fromStation:'', toStation:'', startDate:'', trainNo:''};
+var user = {};
+var ticket = {};
+var periodOfPresale = '';
 var notifyIcons = {
 	'default': './images/default.ico'
 };
@@ -95,8 +96,12 @@ function init() {
 			notify(request.msg, request.type, request.delay);
 		} else if (action == 'play') {
 			play(request.type);
-		} else {
-			sendResponse();
+		} else if (action == 'user') {
+			sendResponse(user);
+		} else if (action == 'ticket') {
+			sendResponse(ticket);
+		} else if (action == 'periodOfPresale') {
+			periodOfPresale = request.value;
 		}
 	});
 }

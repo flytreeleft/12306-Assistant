@@ -1,0 +1,105 @@
+@charset "utf-8";
+/* CSS Document */
+/*----------StationName Start------------*/
+body { text-align: center; margin:0; padding:0; background: #FFF; font-size:12px; color:#000;}
+div,form,img,ul,ol,li,dl,dt,dd {margin: 0; padding: 0; border: 0;}
+h1,h2,h3,h4,h5,h6 { margin:0; padding:0;}
+table,td,tr,th{font-size:12px;}
+a:link {color: #000; text-decoration:none;}
+a:visited {color: #000;text-decoration:none;}
+a:hover {color: #000; text-decoration:underline;}
+a:active {color: #000;}
+.focusPic{margin:0 auto; width:380px;}
+.focusPic .pic{margin:0 auto; width:400px; height:270px; padding:2px 0 0;}
+.focusPic .adPic{margin:0 auto 5px; width:380px; height:29px; overflow:hidden;}
+.focusPic .adPic .text{float:right; padding:9px 4px 0 0; width:140px;}
+.focusPic .adPic .text a{color:#1f3a87;}
+.focusPic .adPic .text a:hover{color:#bc2931;}
+.focusPic h2{ float:left; width:380px;padding:4px 0 3px 12px; font-size:14px; text-align:left;}
+.focusPic p{float:left; width:380px;line-height:160%; margin:0; text-align:left;padding:0 0 10px 12px;}
+.focusPic p img {margin:0px 0 2px;}
+.focusPic .more{ margin:0 auto;}
+.focusPic .more .textNum{float:right;}
+.focusPic .more .textNum .text{float:left; font-weight:bold; color:#666; padding:0px 0px 10px;}
+.focusPic .more .textNum .num{float:left;} 
+.focusPic .more .textNum .bg1{ background:url(http://www.shike.org.cn/imge/11.gif);}
+.focusPic .more .textNum .bg2{ background:url(http://www.shike.org.cn/imge/22.gif);}
+.focusPic .more .textNum .bg3{ background:url(http://www.shike.org.cn/imge/33.gif);}
+.focusPic .more .textNum .bg4{ background:url(http://www.shike.org.cn/imge/44.gif);}
+.focusPic .more .textNum .num ul{ float:left; width:113px;}
+.focusPic .more .textNum .num li{float:left; width:28px; font-weight:bold;display:block; color:#fff; list-style-type:none; padding:6px 0 0;}
+.focusPic .more .textNum .num li a{color:#fff; padding:0 5px; }
+.focusPic .more .textNum .num li a:visited{color:#fff;}
+.focusPic .more .textNum .num li a:hover{color:#ff0;}
+
+.style6 {	font-family: "宋体";
+	font-weight: bold;
+}
+.STYLE7 {color: #FFFFFF}
+#dd {
+WIDTH: 100px; 
+POSITION: absolute; 
+HEIGHT: 132px;
+}
+.STYLE9 {color: #FF0000}
+.style81 {color: #FFFFFF;}
+
+.inputa {
+	BORDER-RIGHT: #c0c0c0 1px solid; BORDER-TOP: #c0c0c0 1px solid; FONT-SIZE: 14px; MARGIN-BOTTOM: -2px; BORDER-LEFT: #c0c0c0 1px solid; COLOR: #666666; BORDER-BOTTOM: #c0c0c0 1px solid; HEIGHT: 20px; WIDTH: 112px;
+}
+.cityflip:link {
+	FONT-SIZE: 12px; COLOR: #0055aa; TEXT-DECORATION: none
+}
+.cityflip:active {
+	FONT-SIZE: 12px; COLOR: #0055aa; TEXT-DECORATION: none
+}
+.cityflip:visited {
+	FONT-SIZE: 12px; COLOR: #0055aa; TEXT-DECORATION: none
+}
+.cityflip:hover {
+	FONT-SIZE: 12px; COLOR: #0055aa; TEXT-DECORATION: underline
+}
+#form_cities {
+	BORDER-RIGHT: #7F9DB9 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #7F9DB9 1px solid; DISPLAY: none; PADDING-LEFT: 2px; LEFT: 0px; PADDING-BOTTOM: 2px; BORDER-LEFT: #7F9DB9 1px solid; WIDTH: 100px; PADDING-TOP: 2px; BORDER-BOTTOM: #7F9DB9 1px solid; FONT-FAMILY: Arial; POSITION: absolute; TOP: 55px; BACKGROUND-COLOR: #ffffff; 
+}
+#form_cities2 {
+	position: absolute; z-index: 2000; top: 140px; left: 138.5px;display:none;FONT-FAMILY: Arial;
+}
+#top_cities {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; PADDING-BOTTOM: 2px; COLOR: #666666; PADDING-TOP: 2px; BORDER-BOTTOM: gray 1px dashed
+}
+#panel_cities {
+	COLOR: #0055aa; FONT-FAMILY: Arial; HEIGHT: 149px
+}
+#panel_cities DIV {
+	PADDING-RIGHT: 2px; PADDING-LEFT: 2px; PADDING-BOTTOM: 2px; MARGIN: 1px 0px; CURSOR: pointer; PADDING-TOP: 2px; BACKGROUND-COLOR: #ffffff; TEXT-ALIGN: right
+}
+#panel_cities SPAN {
+	PADDING-RIGHT: 0px; DISPLAY: block; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; COLOR: #0055aa; PADDING-TOP: 1px
+}
+.cityline {
+	BORDER-TOP: white 1px solid; COLOR: #666666; BORDER-BOTTOM: white 1px solid; HEIGHT: 18px; BACKGROUND-COLOR: white
+}
+.citylineover {
+	BORDER-TOP: #68a7f6 1px solid; BORDER-BOTTOM: #68a7f6 1px solid; HEIGHT: 18px; BACKGROUND-COLOR: #c8e3fc
+}
+.lalign {
+	FLOAT: right; TEXT-ALIGN: right
+}
+.ralign {
+	FLOAT: left; TEXT-ALIGN: left
+}
+#flip_cities {
+	PADDING-RIGHT: 3px; PADDING-LEFT: 3px; PADDING-BOTTOM: 3px; PADDING-TOP: 3px; TEXT-ALIGN: center
+}
+#flip_cities2 {
+	PADDING-RIGHT: 3px; PADDING-LEFT: 3px; PADDING-BOTTOM: 3px; PADDING-TOP: 3px; TEXT-ALIGN: right
+}
+
+.STYLE3 {	font-size: 9pt;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.STYLE84 {color: #000000; font-size: 9pt;}
+.STYLE85 {color: #000000}
+/*--------StationName End---------*/
